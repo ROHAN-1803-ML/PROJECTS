@@ -1,0 +1,45 @@
+import os
+import time
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+
+
+chrome_path = "C:\Program Files\Google\Chrome\Application"
+service = Service(chrome_path + "/chromedriver.exe")
+options = webdriver.ChromeOptions()
+options.binary_location = chrome_path + "/chrome.exe"
+web_driver = webdriver.Chrome(service = service,  options = options)
+web_driver.maximize_window()
+
+url = "https://runawayclothingco.com/product/goryo-i-can-be-anything-premium-tee/"
+web_driver.get(url)
+time.sleep(2)
+
+
+import requests
+import json
+from bs4 import BeautifulSoup
+url="https://runawayclothingco.com/product/goryo-i-can-be-anything-premium-tee/"
+
+response=requests.get(url)
+soup = BeautifulSoup(response.text,"html.parser")
+
+scripts = soup.find_all('script', type='application/ld+json')
+for items in scripts:
+        res = json.loads(items.text)
+        
+if isinstance(res,dict):
+        if res.get('@type') == 'Product':
+                brand=res.get("name")
+                print("PRODUCT NAME:",brand)
+                sku=res.get('sku')
+                print("SKU:",sku)
+                offers = res.get("offers")
+                price = None
+                for off in offers:
+                  price = off.get('price')
+                  valid=off.get('priceValidUntil')
+                  break
+                print("PRICE:",price)
+                print("VALID:",valid)
